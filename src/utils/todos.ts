@@ -9,7 +9,7 @@ export const fetchTodos = async () => {
     }
 }
 
-export const deleteTodos = async (id: number) => {
+export const deleteTodo = async (id: number) => {
     try {
         await client.todo.delete({
             where: {
