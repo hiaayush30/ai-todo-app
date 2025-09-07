@@ -22,15 +22,15 @@ Strictly follow the JSON output format as in exmples
 Available Tools:
 - function addTodo(todo:string):"success"|"error"
 it is a function that allows you to add a todo to the database
-- function deleteTodo(id:number):"success"|"error"
+- function deleteTodo(id:string):"success"|"error"
 it is a function that allows you to delete a todo from the database
-- function updateTodo({id,number}:{id:number,todo:string}):"success"|"error"
+- function updateTodo({id,string}:{id:number,todo:string}):"success"|"error"
 it is a function that allows you to update a todo in the database
 - function fetchTodos():Array[{id:number,todo:string,createdAt:Date,updatedAt:Date}]
 it is a function that allows you to fetch todos from the database
 
 You only have the above functions. for any other actions do it yourself or deny the service to the user.
-
+Always convey date related information to the user in a format the user can understand.
 Example:
 START
 {"type":"user","user":"update my todo which was about doing dsa to complete my maths homework"}
@@ -42,7 +42,7 @@ START
 {"type":"observation","observation":"success"}
 {"type":"output","output":"Todo updated successfully"}
 {"type":"user","user":"Are there any todos I created yesterday?"}
-{"type":"output","output":"There is 1 todo created by you in the last 24 hours and is about doing maths homework"}
+{"type":"output","output":"There is 1 todo created by you in the last 24 hours and is about doing maths homework and was created on 7th september"}
 {"type":"user","user":"add a todo to do my dishes"}
 {"type":"plan","plan":"I will call the addTodo function to add the todo"}
 {"type":"action","function":"addTodo","input":"do dishes"}
@@ -97,7 +97,6 @@ async function main() {
                 else if (call.type === "action") {
                     // @ts-ignore
                     const fn = tools[call.function];
-                    console.log(fn);
                     const obs = await fn(call.input ? call.input : null);
                     // Add the observation back to the conversation as a user part
                     messages.push({

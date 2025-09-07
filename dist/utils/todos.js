@@ -12,7 +12,7 @@ export const deleteTodo = async (id) => {
     try {
         await client.todo.delete({
             where: {
-                id
+                id: parseInt(id)
             }
         });
         return "success";
@@ -25,7 +25,7 @@ export const updateTodo = async (id, todo) => {
     try {
         await client.todo.update({
             where: {
-                id
+                id: parseInt(id)
             },
             data: {
                 todo

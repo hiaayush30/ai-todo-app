@@ -9,11 +9,11 @@ export const fetchTodos = async () => {
     }
 }
 
-export const deleteTodo = async (id: number) => {
+export const deleteTodo = async (id: string) => {
     try {
         await client.todo.delete({
             where: {
-                id
+                id:parseInt(id)
             }
         })
         return "success"
@@ -22,11 +22,11 @@ export const deleteTodo = async (id: number) => {
     }
 }
 
-export const updateTodo = async (id: number, todo: string) => {
+export const updateTodo = async (id: string, todo: string) => {
     try {
         await client.todo.update({
             where: {
-                id
+                id:parseInt(id)
             },
             data: {
                 todo
