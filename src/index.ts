@@ -1,5 +1,7 @@
 import client from "./db/db.js";
 import { addTodo, deleteTodos, fetchTodos, updateTodo } from "./utils/todos.js";
+import dotenv from "dotenv"
+dotenv.config();
 
 const tools = [
     addTodo,
