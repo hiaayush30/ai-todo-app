@@ -1,15 +1,15 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import client from "./db/db.js";
 import { addTodo, deleteTodo, fetchTodos, updateTodo } from "./utils/todos.js";
 import dotenv from "dotenv"
+import readLineSync from "readline-sync";
 dotenv.config();
 
-const tools = [
-    addTodo,
-    deleteTodo,
-    updateTodo,
-    fetchTodos
-]
+const tools = {
+    "addTodo": addTodo,
+    "deleteTodo": deleteTodo,
+    "updateTodo": updateTodo,
+    "fetchTodos": fetchTodos
+}
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -63,18 +63,62 @@ START
 {"type":"output","output":"todo deleted successfully!"}
 `;
 
+const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash-latest",
+    systemInstruction: SYSTEM_PROMPT,
+    generationConfig: {
+        responseMimeType: "application/json",
+    }
+});
+
+const messages: { role: string, parts: { text: string }[] }[] = []; // to maintain the conversation context
+
 async function main() {
-    try {
-        await client.todo.create({
-            data: {
-                todo: "Test Todo",
-            },
+    while (true) {
+        console.log("Gemini AI Agent. Type 'exit' to quit.");
+        const query = readLineSync.question(">> ");
+
+        if (query.toLowerCase() == "exit") {
+            console.log("Exiting...")
+            process.exit()
+        }
+
+        messages.push({
+            role: "user",
+            parts: [{ text: JSON.stringify({ type: "user", user: query }) }]
         });
-        console.log("todo added");
-    } catch (error) {
-        console.error(error);
-    } finally {
-        await client.$disconnect();
+
+        while (true) {
+            const chatResult = await model.generateContent({
+                contents: messages
+            });
+
+            const rawResponse = chatResult.response.candidates?.[0]?.content.parts[0]?.text;
+            console.log("\n\n--- Agent Response ---");
+            console.log(rawResponse);
+            console.log("----------------------\n\n");
+
+
+            if (rawResponse) {
+                messages.push({ role: "model", parts: [{ text: rawResponse }] });
+                const call = JSON.parse(rawResponse);
+
+                if (call.type === "output") {
+                    console.log(`Final Response: ${call.output}`);
+                    break; // Exit the inner loop and wait for new user input
+                } else if (call.type === "action") {
+                    // @ts-ignore
+                    const fn = tools[call.function];
+                    const obs = await fn(call.input ? call.input : null);
+
+                    // Add the observation back to the conversation as a user part
+                    messages.push({
+                        role: "user",
+                        parts: [{ text: JSON.stringify({ type: "observation", observation: obs }) }]
+                    });
+                }
+            }
+        }
     }
 }
 
