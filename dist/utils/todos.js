@@ -51,4 +51,21 @@ export const addTodo = async (todo) => {
         return "error";
     }
 };
+export const searchTodo = async (query) => {
+    try {
+        const todos = await client.todo.findMany({
+            where: {
+                todo: {
+                    contains: query, // match substring
+                    mode: "insensitive" // optional: makes search case-insensitive
+                }
+            }
+        });
+        return todos;
+    }
+    catch (error) {
+        console.log(error);
+        return "error";
+    }
+};
 //# sourceMappingURL=todos.js.map

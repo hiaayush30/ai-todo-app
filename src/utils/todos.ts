@@ -52,3 +52,20 @@ export const addTodo = async (todo: string) => {
         return "error"
     }
 }
+
+export const searchTodo = async (query: string) => {
+    try {
+        const todos = await client.todo.findMany({
+            where: {
+                todo: {
+                    contains: query,   // match substring
+                    mode: "insensitive" // optional: makes search case-insensitive
+                }
+            }
+        });
+        return todos;
+    } catch (error) {
+        console.log(error);
+        return "error";
+    }
+};

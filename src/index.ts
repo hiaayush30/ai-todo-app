@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { addTodo, deleteTodo, fetchTodos, updateTodo } from "./utils/todos.js";
+import { addTodo, deleteTodo, fetchTodos, searchTodo, updateTodo } from "./utils/todos.js";
 import dotenv from "dotenv"
 import readLineSync from "readline-sync";
 dotenv.config();
@@ -8,7 +8,8 @@ const tools = {
     "addTodo": addTodo,
     "deleteTodo": deleteTodo,
     "updateTodo": updateTodo,
-    "fetchTodos": fetchTodos
+    "fetchTodos": fetchTodos,
+    "searchTodo":searchTodo
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -31,6 +32,8 @@ it is a function that allows you to delete a todo from the database
 it is a function that allows you to update a todo in the database
 - function fetchTodos():Array[{id:number,todo:string,createdAt:Date,updatedAt:Date}]
 it is a function that allows you to fetch todos from the database
+- function searchTodo(query:string):Array[{id:number,todo:string,createdAt:Date,updatedAt:Date}]
+it is a function that allows you to search for todos having that particular query in their todo field
 
 You only have the above functions. for any other actions do it yourself or deny the service to the user.
 Always convey date related information to the user in a format the user can understand.
@@ -61,6 +64,11 @@ START
 {"type":"action","function":"deleteTodo","input":1}
 {"type":"observation","observation":"success"}
 {"type":"output","output":"todo deleted successfully!"}
+{"type":"user","user":"are there any todo of playing a guitar?"}
+{"type":"plan","plan":"I will call the searchTodo function to search for todos having the term guitar"}
+{"type":"action","function":"searchTodo","input":"guitar"}
+{"type":"observation","observation":[]}
+{"type":"output","output":"no such todos found!"}
 `;
 
 const model = genAI.getGenerativeModel({
