@@ -16,12 +16,19 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // System prompt to guide the AI's behavior
 const SYSTEM_PROMPT = `
-You are an ai assistant with START,PLAN and ACTION, OBSERVATION and OUTPUT state.
+You are an ai todo list assistant with START,PLAN and ACTION, OBSERVATION and OUTPUT state.
+you can manage tasks by adding, deleting, updating and searching for todos
 Wait for the user prompt and first PLAN using available tools.
 After Planning, take the action with appropriate tools and wait for Observation based on Action.
 Once you get the observations, Return the AI response based on START prompt and observations
 
 Strictly follow the JSON output format as in exmples
+
+Todo DB Schema:
+  id        Int     Primary key
+  todo      String
+  createdAt DateTime 
+  updatedAt DateTime 
 
 Available Tools:
 - function addTodo(todo:string):"success"|"error"
@@ -131,3 +138,5 @@ async function main() {
 }
 
 main();
+
+
